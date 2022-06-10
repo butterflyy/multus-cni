@@ -611,6 +611,11 @@ func tryLoadK8sPodDefaultNetwork(kubeClient *ClientInfo, pod *v1.Pod, conf *type
 		return nil, logging.Errorf("tryLoadK8sPodDefaultNetwork: more than one default network is specified: %s", netAnnot)
 	}
 
+	//add node name to v1.multus-cni.io/default-network config
+	hostName, _ := os.Hostname()
+	networks[0].Name = hostName + "-" + networks[0].Name
+	logging.Debugf("load pod network add hostname : %v", networks[0].Name)
+
 	delegate, _, err := getKubernetesDelegate(kubeClient, networks[0], conf.ConfDir, pod, nil)
 	if err != nil {
 		return nil, logging.Errorf("tryLoadK8sPodDefaultNetwork: failed getting the delegate: %v", err)
